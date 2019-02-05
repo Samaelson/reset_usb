@@ -1,11 +1,9 @@
 /*
- * This is a Linux command-line alternative to the FTDI MProg/FTProg
- * utilities for FTDI's FT-X series.
- *
- * Modified for the FT-X series by Richard Meadows 2012.
+ * This is a Linux command-line tool to reset a usb device
+ * based on Vendor ID and Product ID
  *
  * Based upon:
- * ft232r_prog.c by Mark Lord.  Copyright 2010-2012.
+ * reset_usb.c by Andreas Schramm.  Copyright 2019.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,14 +27,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-//#include <ftdi.h>
 #include <stdbool.h>
 
 #include <libusb-1.0/libusb.h> // requires sudo apt-get install libusb-dev
 
-#define MYVERSION	"0.1"
+#define VERSION	"0.2"
 
-static const char *myname;
+static const char *prgname;
 
 
 static unsigned long unsigned_val (const char *arg, unsigned long max)
@@ -53,24 +50,24 @@ static unsigned long unsigned_val (const char *arg, unsigned long max)
 }
 
 
-int rst_dev_con(int vid, int pid){
-    /*Open libusb*/
+int rst_dev_con(int vid, int pid)
+{
     int resetStatus = 0;
+
     libusb_context * context;
+
     libusb_init(&context);
     
     libusb_device_handle * dev_handle = libusb_open_device_with_vid_pid(context,vid,pid);
     if (dev_handle == NULL){
-      printf("usb resetting unsuccessful! No matching device found, or error encountered!\n");
       resetStatus = 1;
     }
     else{
-      /*reset the device, if one was found*/
       resetStatus = libusb_reset_device(dev_handle);
-	  // retruns 0 on success
     }
-    /*exit libusb*/
+
     libusb_exit(context);
+
     return resetStatus;
 }
 
@@ -80,21 +77,16 @@ int rst_dev_con(int vid, int pid){
 int main (int argc, char *argv[])
 {
 	const char *slash;
-
-	//struct eeprom_fields ee;
-    /* We only deal with the first 256 bytes and ignore the user memory space */
 	int retValue = 0;
-
 	unsigned short usb_vid;
 	unsigned short usb_pid;
 
-	// This is for display program information only
-	myname = argv[0];
-	slash = strrchr(myname, '/');
+	prgname = argv[0];
+	slash = strrchr(prgname, '/');
 	if (slash)
-		myname = slash + 1;
+		prgname = slash + 1;
 
-	printf("\n%s: version %s\n", myname, MYVERSION);
+	printf("\n%s: version %s\n", prgname, VERSION);
 	printf("Reset USB by Andreas Schramm\n\n");
 
 	if (argc < 3) {
@@ -108,16 +100,13 @@ int main (int argc, char *argv[])
 	usb_vid = unsigned_val(argv[1], 0xffff);
 	usb_pid = unsigned_val(argv[2], 0xffff);
 
-
-
-	printf("Trying to reset USB device vid_%04x&pid_%04x\n",usb_vid,usb_pid);
 	retValue = rst_dev_con(usb_vid, usb_pid);
-	printf("RetVale=%d\n",retValue);
-	if(retValue != 0){
+	if(retValue == 1){
 		printf("Reseting USB device vid_%04x&pid_%04x failed!\n",usb_vid,usb_pid);
-		printf("Unplug and connect device manually\n");
 		return 1;
 	}
+
+	printf("Reseting USB device vid_%04x&pid_%04x successful!\n",usb_vid,usb_pid);
 
 	return 0;
 }
