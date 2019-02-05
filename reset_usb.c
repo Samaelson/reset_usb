@@ -90,7 +90,7 @@ int main (int argc, char *argv[])
 	printf("Reset USB by Andreas Schramm\n\n");
 
 	if (argc < 3) {
-		printf("\nUsage:  %s <arg1> <arg2>\n", myname);
+		printf("\nUsage:  %s <arg1> <arg2>\n", prgname);
 		printf("\nwhere the argumnets mus be: \n");
 		printf("			 <arg1>   # (vendor id of device to be resetted, eg. 0x0403)");
 		printf("			 <arg2>   # (product id of device to be resetted, eg. 0x6001)");
