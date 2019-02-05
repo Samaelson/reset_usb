@@ -31,7 +31,7 @@
 
 #include <libusb-1.0/libusb.h> // requires sudo apt-get install libusb-dev
 
-#define VERSION	"0.2"
+#define VERSION	"0.3"
 
 static const char *prgname;
 
@@ -102,11 +102,11 @@ int main (int argc, char *argv[])
 
 	retValue = rst_dev_con(usb_vid, usb_pid);
 	if(retValue == 1){
-		printf("Reseting USB device vid_%04x&pid_%04x failed!\n",usb_vid,usb_pid);
+		printf("Resetting USB device vid_%04x&pid_%04x failed!\n",usb_vid,usb_pid);
 		return 1;
 	}
 
-	printf("Reseting USB device vid_%04x&pid_%04x successful!\n",usb_vid,usb_pid);
+	printf("Resetting USB device vid_%04x&pid_%04x successful!\n",usb_vid,usb_pid);
 
 	return 0;
 }
